@@ -7,6 +7,7 @@ local objectList={}
 local Crystal = require "crystal"
 local Bullet = require "bullet"
 local Player = require "player"
+local Spider = require "spider"
 
 function love.load(arg)
   
@@ -15,10 +16,13 @@ function love.load(arg)
     require("mobdebug").start()
   end
 
+  local width = love.graphics.getWidth()
+  local height = love.graphics.getHeight()
   
   table.insert(objectList, Crystal:new())
   table.insert(objectList, Player:new(-100, 50, {'w', 'a', 's', 'd', 'up', 'left', 'down', 'right'}))
   table.insert(objectList, Player:new(100, 50))
+  table.insert(objectList, Spider:new(-width / 3, -height / 3))
 end
 
 
