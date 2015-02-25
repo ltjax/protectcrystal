@@ -1,4 +1,5 @@
 local class = require "middleclass"
+local Vector = require "vector"
 
 local Bullet = class "Bullet"
 
@@ -8,11 +9,11 @@ function Bullet:initialize(x, y, dx, dy)
   self.time = 1.0
 end
 
-function Bullet:update(dt)
+function Bullet:update(dt, objectList)
   self.position = Vector.add(Vector.scale(self.direction, dt), self.position)
-  --self.time = self.time - dt
+  self.time = self.time - dt
   
-    return true
+  return self.time > 0
 end
 
 function Bullet:draw()

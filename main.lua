@@ -46,7 +46,7 @@ function love.update(dt)
   for i=1,#tempObjectList do
     local currentObject=tempObjectList[i]
     if currentObject.update then
-      if currentObject:update(dt) then
+      if currentObject:update(dt, objectList) then
         table.insert(objectList, currentObject)
       end
     else

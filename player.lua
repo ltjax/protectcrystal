@@ -1,4 +1,6 @@
 local class = require "middleclass"
+local Vector = require "vector"
+local Bullet = require "bullet"
 local Player = class "Player"
 
 function Player:initialize(x, y, keys)
@@ -63,7 +65,7 @@ function Player:updateInput(dt)
   self.position = {x=self.position.x+dx*speed, y=self.position.y+dy*speed}
 end
 
-function Player:update(dt)
+function Player:update(dt, objectList)
   self:updateInput(dt)
   
   
