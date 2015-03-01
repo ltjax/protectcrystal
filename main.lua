@@ -2,6 +2,8 @@ local class = require "middleclass"
 local Vector = require "vector"
 
 local objectList={}
+local world
+
 
 -- Require entity types
 local Crystal = require "crystal"
@@ -16,12 +18,15 @@ function love.load(arg)
     require("mobdebug").start()
   end
 
+  love.physics.setMeter(32)
+  world = love.physics.newWorld(0, 0, true)
+  
   local width = love.graphics.getWidth()
   local height = love.graphics.getHeight()
   
-  table.insert(objectList, Crystal:new())
-  table.insert(objectList, Player:new(-100, 50, {'w', 'a', 's', 'd', 'up', 'left', 'down', 'right'}))
-  table.insert(objectList, Player:new(100, 50))
+  table.insert(objectList, Crystal:new(world))
+  table.insert(objectList, Player:new(world, -100, 50, {'w', 'a', 's', 'd', 'up', 'left', 'down', 'right'}))
+  table.insert(objectList, Player:new(world, 100, 50))
   table.insert(objectList, Spider:new(-width / 3, -height / 3))
 end
 
@@ -40,7 +45,11 @@ end
 
 function love.update(dt) 
   
+  -- Update game physics
+  world:update(dt)
+  -- Update game logic
   local tempObjectList=objectList
+  
   objectList={}
   
   for i=1,#tempObjectList do
