@@ -11,6 +11,18 @@ local Bullet = require "bullet"
 local Player = require "player"
 local Spider = require "spider"
 
+function beginContact(a, b, contact)
+  if a:getUserData().type == "Spider" and b:getUserData().type == "Crystal" then
+    spider = a:getUserData()
+  elseif a:getUserData().type == "Crystal" and b:getUserData().type == "Spider" then 
+    spider = b:getUserData()
+  end
+  
+  if spider then
+    spider:setDoUpdate (false)
+  end
+end
+
 function love.load(arg)
   
   -- Enable debugging
@@ -20,6 +32,7 @@ function love.load(arg)
 
   love.physics.setMeter(32)
   world = love.physics.newWorld(0, 0, true)
+  world:setCallbacks(beginContact)
   
   local width = love.graphics.getWidth()
   local height = love.graphics.getHeight()
@@ -27,7 +40,7 @@ function love.load(arg)
   table.insert(objectList, Crystal:new(world))
   table.insert(objectList, Player:new(world, -100, 50, {'w', 'a', 's', 'd', 'up', 'left', 'down', 'right'}))
   table.insert(objectList, Player:new(world, 100, 50))
-  table.insert(objectList, Spider:new(-width / 3, -height / 3))
+  table.insert(objectList, Spider:new(-width / 3, -height / 3, world))
 end
 
 
@@ -62,5 +75,4 @@ function love.update(dt)
       table.insert(objectList, currentObject)
     end
   end
-
 end

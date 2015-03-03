@@ -10,15 +10,19 @@ function Player:initialize(world, x, y, keys)
   self.keys = keys
   self.shootDelay=0.0
   self.body = love.physics.newBody(world, x, y, "dynamic")
+  self.body:setLinearDamping(1.0)
   self.shape = love.physics.newCircleShape(32)
   self.fixture = love.physics.newFixture(self.body, self.shape)
+  self.fixture:setUserData(self)  
 end
 
 function Player:draw()
   love.graphics.setColor(255, 255, 255, 255)
   local x, y = self:getPosition()
   
-  love.graphics.draw(self.image, x-self.imageWidth/2, y-self.imageHeight) 
+  love.graphics.draw(self.image, x-self.imageWidth/2, y-self.imageHeight/2) 
+  love.graphics.circle("line", x, y, 32, 16) 
+  
 end
 
 function Player:updateInput(dt)
