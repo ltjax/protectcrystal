@@ -34,12 +34,14 @@ function Spider:update(dt)
     
     self.time = self.time + dt           
     
-    -- correct target direction after possible collision
+    -- correct target direction after possible collision position
     pos = {x=self.body:getX(), y=self.body:getY()}
-    self.direction = {x=-pos.x, y=-pos.y}    
+    self.direction = Vector.normalize({x=-pos.x, y=-pos.y})
     pos = Vector.add(Vector.scale(self.direction, dt * 0.1), pos)      
     self.body:setPosition (pos.x, pos.y)
-    self.body:setLinearVelocity (dt * 0.1, dt * 0.1)
+    self.body:setLinearVelocity(self.direction.x * 100, self.direction.y * 100)
+  else
+    self.body:setLinearVelocity(0,0)
   end
   return true
 end
