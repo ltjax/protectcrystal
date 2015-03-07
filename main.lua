@@ -1,8 +1,14 @@
 local class = require "middleclass"
+local Gamestate = require "gamestate"
 local Vector = require "vector"
 
 local objectList={}
 local world
+
+local inGameState = {}
+local logoState = {}
+
+
 
 
 -- Require entity types
@@ -29,7 +35,34 @@ function love.load(arg)
   if arg[#arg] == "-debug" then
     require("mobdebug").start()
   end
+  
+  Gamestate.registerEvents()
+  Gamestate.switch(logoState)
+end
 
+function logoState:init()
+  self.image = love.graphics.newImage("data/logo.png")
+end
+
+function logoState:enter()
+  love.graphics.setBackgroundColor(0, 0, 0, 255)
+end
+
+
+function logoState:draw()
+  local windowWidth = love.window.getWidth()
+  local windowHeight = love.window.getHeight()
+  local imageWidth = self.image:getWidth()
+  local imageHeight = self.image:getHeight()
+  
+  love.graphics.draw(self.image, (windowWidth-imageWidth)/2, (windowHeight-imageHeight)/2)
+end
+
+function logoState:keypressed()
+  Gamestate.switch(inGameState)
+end
+
+function inGameState:init()
   love.physics.setMeter(32)
   world = love.physics.newWorld(0, 0, true)
   world:setCallbacks(beginContact)
@@ -44,7 +77,7 @@ function love.load(arg)
 end
 
 
-function love.draw()
+function inGameState:draw()
   local width = love.graphics.getWidth()
   local height = love.graphics.getHeight()
   love.graphics.translate(width/2, height/2)
@@ -56,7 +89,7 @@ function love.draw()
   end
 end
 
-function love.update(dt) 
+function inGameState:update(dt) 
   
   -- Update game physics
   world:update(dt)
