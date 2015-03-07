@@ -56,13 +56,16 @@ function inGameState:update(dt)
   -- Update game physics
   self.world:update(dt)
   
+  -- Temporary object list for new objects
+  local newObjectList={}
+  
   -- Update and move alive entities to the front
   local dst=1
   local N = #self.objectList
   for i=1,N do
     local currentObject=self.objectList[i]
     
-    if (not currentObject.update) or currentObject:update(dt, self.objectList) then
+    if (not currentObject.update) or currentObject:update(dt, newObjectList) then
       self.objectList[dst] = currentObject
       dst = dst + 1
     end
@@ -72,6 +75,9 @@ function inGameState:update(dt)
     table.remove(self.objectList)
   end
   
+  for i=1, #newObjectList do
+    table.insert(self.objectList, newObjectList[i])
+  end
 end
 
 return inGameState
