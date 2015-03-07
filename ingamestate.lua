@@ -55,21 +55,19 @@ function inGameState:update(dt)
   
   -- Update game physics
   self.world:update(dt)
-  -- Update game logic
-  local tempObjectList=self.objectList
   
-  self.objectList={}
-  
-  for i=1,#tempObjectList do
-    local currentObject=tempObjectList[i]
-    if currentObject.update then
-      if currentObject:update(dt, self.objectList) then
-        table.insert(self.objectList, currentObject)
-      end
+  -- Update and move alive entities to the front
+  local dst=1
+  for i=1,#self.objectList do
+    local currentObject=self.objectList[i]
+    if (not currentObject.update) or currentObject:update(dt, self.objectList) then
+      self.objectList[dst] = currentObject
+      dst = dst + 1
     else
-      table.insert(self.objectList, currentObject)
+      self.objectList[i] = nil
     end
   end
+  
 end
 
 return inGameState
