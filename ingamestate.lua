@@ -58,14 +58,18 @@ function inGameState:update(dt)
   
   -- Update and move alive entities to the front
   local dst=1
-  for i=1,#self.objectList do
+  local N = #self.objectList
+  for i=1,N do
     local currentObject=self.objectList[i]
+    
     if (not currentObject.update) or currentObject:update(dt, self.objectList) then
       self.objectList[dst] = currentObject
       dst = dst + 1
-    else
-      self.objectList[i] = nil
     end
+  end
+
+  for i=dst,N do
+    table.remove(self.objectList)
   end
   
 end
