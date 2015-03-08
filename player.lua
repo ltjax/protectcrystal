@@ -10,6 +10,7 @@ function Player:initialize(world, x, y, keys)
   self.keys = keys
   self.shootDelay=0.0
   self.shape = world:addCircle(x, y, 32)
+  self.world = world
 end
 
 function Player:draw()
@@ -83,7 +84,7 @@ function Player:update(dt, objectList)
   if self.shooting and self.shootDelay <= 0.0 then
     local bulletSpeed=1300
     local x, y=self.shape:center()
-    local bullet=Bullet:new(x, y-20, self.direction.x*bulletSpeed, self.direction.y*bulletSpeed)
+    local bullet=Bullet:new(self.world, x, y-20, self.direction.x*bulletSpeed, self.direction.y*bulletSpeed)
     table.insert(objectList, bullet)
     self.shootDelay = 0.2
   end

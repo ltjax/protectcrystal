@@ -3,15 +3,26 @@ local Vector = require "vector"
 
 local Bullet = class "Bullet"
 
-function Bullet:initialize(x, y, dx, dy)
+function Bullet:initialize(world, x, y, dx, dy)
   self.position = {x=x, y=y}
   self.direction = {x=dx, y=dy}
-  self.time = 1.0
+  self.time = 0.6
+  self.world = world
 end
 
 function Bullet:update(dt, objectList)
-  self.position = Vector.add(Vector.scale(self.direction, dt), self.position)
+  local delta=Vector.scale(self.direction, dt)
   self.time = self.time - dt
+  
+  local traceResult = self.world:segmentTrace(self.position.x, self.position.y, delta.x, delta.y)
+  
+  if traceResult and traceResult.object and traceResult.object.receiveDamage then
+    traceResult.object:receiveDamage(1.0)
+    -- Add explosion
+    return false
+  end  
+  
+  self.position = Vector.add(delta, self.position)
   
   return self.time > 0
 end

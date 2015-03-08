@@ -11,25 +11,43 @@ local Bullet = require "bullet"
 local Player = require "player"
 local Spider = require "spider"
 
-local function beginContact(a, b, contact)
-  if a:getUserData().type == "Spider" and b:getUserData().type == "Crystal" then
-    spider = a:getUserData()
-  elseif a:getUserData().type == "Crystal" and b:getUserData().type == "Spider" then 
-    spider = b:getUserData()
+local function segmentTrace(world, x, y, dx, dy)
+  local ax, ay=x ,y
+  local bx, by=ax+dx, ay+dy
+  
+  if ax > bx then
+    ax, bx = bx, ax
   end
   
-  if spider then
-    spider:setDoUpdate (false)
+  if ay > by then
+    ay, by = by, ay
   end
+  
+  local result=nil
+  local bestLambda=1.0
+  for shape in pairs(world:shapesInRange(ax,ay,bx,by)) do
+    local intersecting, lambda = shape:intersectsRay(x, y, dx, dy)
+    if intersecting and lambda < bestLambda then
+      result = shape
+      bestLambda = lambda
+    end
+  end
+
+  return result
+end
+
+
+function inGameState:contactCallback(dt, shape_one, shape_two, dx, dy)
 end
 
 function inGameState:init()
   -- Create and empty list for all game objects
   self.objectList = {}
   
-  self.world = HadronCollider(100, function() end)
+  self.world = HadronCollider(100, function(...) self:contactCallback(...) end)
+  self.world.segmentTrace = segmentTrace
   
-  self.world:addCircle(0, 0, 1)
+  
   
   local width = love.graphics.getWidth()
   local height = love.graphics.getHeight()
@@ -39,7 +57,6 @@ function inGameState:init()
   table.insert(self.objectList, Player:new(self.world, 100, 50))
   table.insert(self.objectList, Spider:new(-width / 3, -height / 3, self.world))
 end
-
 
 function inGameState:draw()
   local width = love.graphics.getWidth()
