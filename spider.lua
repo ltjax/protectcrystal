@@ -9,12 +9,7 @@ function Spider:initialize(x, y, world)
   self.position = {x=x, y=y}
   self.direction = {x=-x, y=-y}
   self.time = 0.0
-  self.body = love.physics.newBody(world, x, y, "dynamic") 
-  self.shape = love.physics.newCircleShape(32)
-  self.fixture = love.physics.newFixture(self.body, self.shape)
-  self.fixture:setUserData(self)
-  self.doUpdate = true
-  self.type ="Spider"
+  self.shape = world:addCircle(x, y, 32)
 end
 
 function Spider:setDoUpdate (value)
@@ -22,11 +17,11 @@ function Spider:setDoUpdate (value)
 end
 
 function Spider:draw()
-  pos = {x=self.body:getX(), y=self.body:getY()}
+  local x, y = self.shape:center()
   
   love.graphics.setColor(255, 255, 255, 255)
-  love.graphics.circle("line", pos.x, pos.y, 32, 16 )
-  love.graphics.draw(self.image, pos.x - self.imageWidth, pos.y - self.imageHeight) 
+  self.shape:draw("line")
+  love.graphics.draw(self.image, x - self.imageWidth, y - self.imageHeight) 
 end
 
 function Spider:update(dt)  
@@ -35,13 +30,11 @@ function Spider:update(dt)
     self.time = self.time + dt           
     
     -- correct target direction after possible collision position
-    pos = {x=self.body:getX(), y=self.body:getY()}
-    self.direction = Vector.normalize({x=-pos.x, y=-pos.y})
-    pos = Vector.add(Vector.scale(self.direction, dt * 0.1), pos)      
-    self.body:setPosition (pos.x, pos.y)
-    self.body:setLinearVelocity(self.direction.x * 100, self.direction.y * 100)
+    local x,y = self.shape:center()
+    self.direction = Vector.normalize({x=-x, y=-y})
+    local delta = Vector.scale(self.direction, dt * 0.1)
+    self.shape.move(delta.x, delta.y)
   else
-    self.body:setLinearVelocity(0,0)
   end
   return true
 end

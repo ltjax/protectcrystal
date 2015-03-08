@@ -1,5 +1,7 @@
 
 local Vector = require "vector"
+local HadronCollider = require "hadroncollider"
+assert(HadronCollider, "Unable to load hadron collider")
 
 local inGameState = {}
 
@@ -25,14 +27,14 @@ function inGameState:init()
   -- Create and empty list for all game objects
   self.objectList = {}
   
-  love.physics.setMeter(32)
-  self.world = love.physics.newWorld(0, 0, true)
-  self.world:setCallbacks(beginContact)
+  self.world = HadronCollider(100, function() end)
+  
+  self.world:addCircle(0, 0, 1)
   
   local width = love.graphics.getWidth()
   local height = love.graphics.getHeight()
   
-  table.insert(self.objectList, Crystal:new(self.world))
+  --table.insert(self.objectList, Crystal:new(self.world))
   table.insert(self.objectList, Player:new(self.world, -100, 50, {'w', 'a', 's', 'd', 'up', 'left', 'down', 'right'}))
   table.insert(self.objectList, Player:new(self.world, 100, 50))
   table.insert(self.objectList, Spider:new(-width / 3, -height / 3, self.world))

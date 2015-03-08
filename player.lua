@@ -9,19 +9,16 @@ function Player:initialize(world, x, y, keys)
   self.imageHeight = self.image:getHeight()
   self.keys = keys
   self.shootDelay=0.0
-  self.body = love.physics.newBody(world, x, y, "dynamic")
-  self.body:setLinearDamping(1.0)
-  self.shape = love.physics.newCircleShape(32)
-  self.fixture = love.physics.newFixture(self.body, self.shape)
-  self.fixture:setUserData(self)  
+  self.shape = world:addCircle(x, y, 32)
 end
 
 function Player:draw()
   love.graphics.setColor(255, 255, 255, 255)
-  local x, y = self:getPosition()
+  local x, y = self.shape:center()
   
   love.graphics.draw(self.image, x-self.imageWidth/2, y-self.imageHeight/2) 
-  love.graphics.circle("line", x, y, 32, 16) 
+  
+  self.shape:draw("line") 
   
 end
 
@@ -69,12 +66,12 @@ function Player:updateInput(dt)
     self.shooting = false
   end
   
-  local speed=300
-  self.body:setLinearVelocity(dx*speed, dy*speed)
+  local speed=300*dt
+  self.shape:move(dx*speed, dy*speed)
 end
 
 function Player:getPosition()
-  return self.body:getX(), self.body:getY()
+  return self.shape:center()
 end
 
 function Player:update(dt, objectList)
