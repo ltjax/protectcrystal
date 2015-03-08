@@ -11,8 +11,9 @@ function Crystal:initialize(world)
 end
 
 function Crystal:draw()
-  love.graphics.circle("line", self.body:getX(), self.body:getY(), 52, 16)
+  local x, y = self.shape:center()
   love.graphics.setColor(255, 255, 255, 255)
+  self.shape:draw("line")
   love.graphics.draw(self.image, -self.imageWidth/2, -self.imageHeight/1.25)    
 end
 

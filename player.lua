@@ -82,7 +82,8 @@ function Player:update(dt, objectList)
     
   if self.shooting and self.shootDelay <= 0.0 then
     local bulletSpeed=1300
-    local bullet=Bullet:new(self.body:getX(), self.body:getY()-20, self.direction.x*bulletSpeed, self.direction.y*bulletSpeed)
+    local x, y=self.shape:center()
+    local bullet=Bullet:new(x, y-20, self.direction.x*bulletSpeed, self.direction.y*bulletSpeed)
     table.insert(objectList, bullet)
     self.shootDelay = 0.2
   end
