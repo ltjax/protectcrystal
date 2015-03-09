@@ -26,7 +26,7 @@ local function segmentTrace(world, x, y, dx, dy)
   
   local result=nil
   local bestLambda=1.0
-  for shape in pairs(world:shapesInRange(ax,ay,bx,by)) do
+  for shape in pairs(world.collider:shapesInRange(ax,ay,bx,by)) do
     local intersecting, lambda = shape:intersectsRay(x, y, dx, dy)
     if intersecting and lambda < bestLambda then
       result = shape
@@ -45,20 +45,20 @@ function inGameState:init()
   -- Create and empty list for all game objects
   self.objectList = {}
   
-  self.world = HadronCollider(100, function(...) self:contactCallback(...) end)
+  self.world = {}
+  self.world.collider = HadronCollider(100, function(...) self:contactCallback(...) end)
   self.world.segmentTrace = segmentTrace
+
+  -- Add the eponymous crystal
+  self.world.crystal = Crystal:new(self.world)
+  table.insert(self.objectList, self.world.crystal)
   
-  
-  
-  local width = love.graphics.getWidth()
-  local height = love.graphics.getHeight()
-  
-  local crystal = Crystal:new(self.world)
-  table.insert(self.objectList, crystal)
+  -- Add players
   table.insert(self.objectList, Player:new(self.world, -100, 50, {'w', 'a', 's', 'd', 'up', 'left', 'down', 'right'}))
   table.insert(self.objectList, Player:new(self.world, 100, 50))
-  --table.insert(self.objectList, Spider:new(self.world, -width / 3, -height / 3, crystal))
-  table.insert(self.objectList, Spawner:new({Spider}, self.objectList, self.world, crystal))
+  
+  -- And the monster spawner
+  table.insert(self.objectList, Spawner:new({Spider}, self.objectList, self.world))
 end
 
 function inGameState:draw()
@@ -78,7 +78,7 @@ end
 function inGameState:update(dt) 
   
   -- Update game physics
-  self.world:update(dt)
+  self.world.collider:update(dt)
   
   -- Temporary object list for new objects
   local newObjectList={}

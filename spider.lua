@@ -3,20 +3,20 @@ local Vector = require "vector"
 local Timer = require "timer"
 local Spider = class "Spider"
 
-function Spider:initialize(world, x, y, crystal)
+function Spider:initialize(world, x, y)
   self.image = love.graphics.newImage("data/spider.png")
   self.imageWidth = self.image:getWidth()
   self.imageHeight = self.image:getHeight()
   self.position = {x=x, y=y}
   self.direction = {x=-x, y=-y}
   self.time = 0.0
-  self.shape = world:addCircle(x, y, 32)
+  self.shape = world.collider:addCircle(x, y, 32)
   self.shape.object = self
   self.maxHealth = 3.0
   self.health = self.maxHealth
   self.timer = Timer.new()
   self.attacking = false
-  self.crystal = crystal
+  self.world = world
 end
 
 function Spider:receiveDamage(damage)
@@ -45,7 +45,7 @@ function Spider:update(dt)
   if distance < 70 then
     if not self.attacking then
       self.attacking = true
-      self.timer.addPeriodic(1.2, function() self.crystal:receiveDamage(1.0) end)
+      self.timer.addPeriodic(1.2, function() self.world.crystal:receiveDamage(1.0) end)
     end
   else
     
@@ -54,7 +54,13 @@ function Spider:update(dt)
     self.shape:move(delta.x, delta.y)
   end
 
-  return self.health > 0.0
+  if self.health > 0.0 then
+    return true
+  else
+    self.world.collider:remove(self.shape)
+    return false
+  end
+  
 end
 
 return Spider

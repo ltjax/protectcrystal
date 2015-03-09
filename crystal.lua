@@ -6,7 +6,7 @@ function Crystal:initialize(world)
   self.image = love.graphics.newImage("data/crystal.png")
   self.imageWidth = self.image:getWidth()
   self.imageHeight = self.image:getHeight()
-  self.shape = world:addCircle(0, 0, 52)
+  self.shape = world.collider:addCircle(0, 0, 52)
   self.type = "Crystal"  
   self.maxHealth = 30
   self.health = self.maxHealth
