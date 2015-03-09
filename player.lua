@@ -10,6 +10,7 @@ function Player:initialize(world, x, y, keys)
   self.keys = keys
   self.shootDelay=0.0
   self.shape = world:addCircle(x, y, 32)
+  self.shape.object = self
   self.world = world
 end
 

@@ -10,6 +10,7 @@ local Crystal = require "crystal"
 local Bullet = require "bullet"
 local Player = require "player"
 local Spider = require "spider"
+local Spawner = require "spawner"
 
 local function segmentTrace(world, x, y, dx, dy)
   local ax, ay=x ,y
@@ -52,10 +53,12 @@ function inGameState:init()
   local width = love.graphics.getWidth()
   local height = love.graphics.getHeight()
   
-  table.insert(self.objectList, Crystal:new(self.world))
+  local crystal = Crystal:new(self.world)
+  table.insert(self.objectList, crystal)
   table.insert(self.objectList, Player:new(self.world, -100, 50, {'w', 'a', 's', 'd', 'up', 'left', 'down', 'right'}))
   table.insert(self.objectList, Player:new(self.world, 100, 50))
-  table.insert(self.objectList, Spider:new(-width / 3, -height / 3, self.world))
+  --table.insert(self.objectList, Spider:new(self.world, -width / 3, -height / 3, crystal))
+  table.insert(self.objectList, Spawner:new({Spider}, self.objectList, self.world, crystal))
 end
 
 function inGameState:draw()
@@ -66,7 +69,9 @@ function inGameState:draw()
   love.graphics.setBackgroundColor({128,128,128,255})
   
   for i=1,#self.objectList do
-    self.objectList[i]:draw()
+    if self.objectList[i].draw then
+      self.objectList[i]:draw()
+    end
   end
 end
 
