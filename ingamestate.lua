@@ -11,6 +11,7 @@ local Bullet = require "bullet"
 local Player = require "player"
 local Spider = require "spider"
 local Spawner = require "spawner"
+local TiledLoader = require "tiledloader"
 
 local function segmentTrace(world, x, y, dx, dy)
   local ax, ay=x ,y
@@ -46,6 +47,7 @@ function inGameState:init()
   self.objectList = {}
   
   self.world = {}
+  self.world.map = TiledLoader:new(require "map")
   self.world.collider = HadronCollider(100, function(...) self:contactCallback(...) end)
   self.world.segmentTrace = segmentTrace
 
@@ -65,8 +67,13 @@ function inGameState:draw()
   local width = love.graphics.getWidth()
   local height = love.graphics.getHeight()
   love.graphics.translate(width/2, height/2)
-  
-  love.graphics.setBackgroundColor({128,128,128,255})
+    
+  -- Draw background
+  love.graphics.push()
+  love.graphics.scale(2,2)
+  love.graphics.setColor(255,255,255,255)
+  self.world.map:draw()
+  love.graphics.pop()
   
   for i=1,#self.objectList do
     if self.objectList[i].draw then
