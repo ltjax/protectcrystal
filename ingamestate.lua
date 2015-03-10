@@ -2,6 +2,7 @@
 local Vector = require "vector"
 local HadronCollider = require "hadroncollider"
 assert(HadronCollider, "Unable to load hadron collider")
+local Gamestate = require "gamestate"
 
 local inGameState = {}
 
@@ -54,6 +55,10 @@ function inGameState:init()
   -- Add the eponymous crystal
   self.world.crystal = Crystal:new(self.world)
   table.insert(self.objectList, self.world.crystal)
+  self.world.crystal.onDestroy = function()
+    Gamestate.switch(require "gameoverstate")
+  end
+  
   
   -- Add players
   table.insert(self.objectList, Player:new(self.world, -100, 50, {'w', 'a', 's', 'd', 'up', 'left', 'down', 'right'}))

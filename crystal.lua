@@ -14,6 +14,9 @@ end
 
 function Crystal:receiveDamage(damage)
   self.health = self.health - damage
+  if self.health <= 0 and self.onDestroy then
+    self.onDestroy()
+  end  
 end
 
 function Crystal:draw()
