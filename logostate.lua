@@ -23,4 +23,9 @@ function logoState:keypressed()
   Gamestate.switch(require "ingamestate")
 end
 
+function logoState:joystickpressed()
+  Gamestate.switch(require "ingamestate")
+end
+
+
 return logoState

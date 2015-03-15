@@ -14,6 +14,8 @@ local Spider = require "spider"
 local Spawner = require "spawner"
 local TiledLoader = require "tiledloader"
 local Camera = require "camera"
+local MouseKeyboardInput = require "mousekeyboardinput"
+local ControllerInput = require "controllerinput"
 
 local function segmentTrace(world, x, y, dx, dy)
   local ax, ay=x ,y
@@ -64,8 +66,15 @@ function inGameState:init()
   self.world.camera = Camera:new()
   
   -- Add players
-  table.insert(self.objectList, Player:new(self.world, -100, 50, {'w', 'a', 's', 'd', 'up', 'left', 'down', 'right'}))
-  table.insert(self.objectList, Player:new(self.world, 100, 50))
+  local mouseKeyboardInput=MouseKeyboardInput:new({'w', 'a', 's', 'd', 'up', 'left', 'down', 'right'}, true)
+  local gamepadInput=nil
+  
+  if love.joystick.getJoystickCount() > 0 then
+    gamepadInput=ControllerInput:new(love.joystick.getJoysticks()[1])
+  end
+  
+  table.insert(self.objectList, Player:new(self.world, -100, 50, mouseKeyboardInput))
+  table.insert(self.objectList, Player:new(self.world, 100, 50, gamepadInput))
   
   -- And the monster spawner
   table.insert(self.objectList, Spawner:new({Spider}, self.objectList, self.world))

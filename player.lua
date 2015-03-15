@@ -3,11 +3,11 @@ local Vector = require "vector"
 local Bullet = require "bullet"
 local Player = class "Player"
 
-function Player:initialize(world, x, y, keys)
+function Player:initialize(world, x, y, inputHandler)
   self.image = love.graphics.newImage("data/man.png")
   self.imageWidth = self.image:getWidth()
   self.imageHeight = self.image:getHeight()
-  self.keys = keys
+  self.inputHandler = inputHandler
   self.shootDelay=0.0
   self.shape = world.collider:addCircle(x, y, 32)
   self.shape.object = self
@@ -94,16 +94,28 @@ end
 function Player:update(dt, objectList)
   self:updateInput(dt)
   
-  
-  self.shootDelay = math.max(0.0, self.shootDelay-dt)
+  if self.inputHandler then
+    local px, py = self.shape:center()
+    self.inputHandler:update(px, py, self.world.camera)
     
-  if self.shooting and self.shootDelay <= 0.0 then
-    local bulletSpeed=1300
-    local x, y=self.shape:center()
-    local bullet=Bullet:new(self.world, x, y-20, self.direction.x*bulletSpeed, self.direction.y*bulletSpeed)
-    table.insert(objectList, bullet)
-    self.shootDelay = 0.2
+    -- Do movement
+    local move = self.inputHandler.move
+    if move then
+      local speed=300*dt
+      self.shape:move(move.x*speed, move.y*speed)
+    end
+    
+    -- Do shooting
+    if self.inputHandler.shooting and self.shootDelay <= 0.0 then
+      local bulletSpeed=1300
+      local x, y=self.shape:center()
+      local bullet=Bullet:new(self.world, x, y-20, self.inputHandler.direction.x*bulletSpeed, self.inputHandler.direction.y*bulletSpeed)
+      table.insert(objectList, bullet)
+      self.shootDelay = 0.2
+    end  
   end
+    
+  self.shootDelay = math.max(0.0, self.shootDelay-dt)    
   
   return true
 end
