@@ -12,6 +12,8 @@ function Player:initialize(world, x, y, inputHandler)
   self.shape = world.collider:addCircle(x, y, 32)
   self.shape.object = self
   self.world = world
+  self.laserSound =love.audio.newSource("data/LaserShot.wav")
+  self.laserSound:setLooping(false)
 end
 
 function Player:draw()
@@ -110,8 +112,9 @@ function Player:update(dt, objectList)
       local bulletSpeed=1300
       local x, y=self.shape:center()
       local bullet=Bullet:new(self.world, x, y-20, self.inputHandler.direction.x*bulletSpeed, self.inputHandler.direction.y*bulletSpeed)
+      self.laserSound:play()
       table.insert(objectList, bullet)
-      self.shootDelay = 0.2
+      self.shootDelay = 0.4
     end  
   end
     

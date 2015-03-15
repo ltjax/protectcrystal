@@ -4,7 +4,8 @@ local Timer = require "timer"
 local Spider = class "Spider"
 
 function Spider:initialize(world, x, y)
-  self.image = love.graphics.newImage("data/spider.png")
+  self.image = love.graphics.newImage("data/spider_4.png")
+  self.image:setFilter("nearest", "nearest")
   self.imageWidth = self.image:getWidth()
   self.imageHeight = self.image:getHeight()
   self.position = {x=x, y=y}
@@ -17,6 +18,25 @@ function Spider:initialize(world, x, y)
   self.timer = Timer.new()
   self.attacking = false
   self.world = world
+  
+  local tileSize=32
+  self.tileSize=tileSize
+  
+  self.anim = {}
+  local i=1
+  for y=1,4 do
+    self.anim[y]={}
+    for x=1,6 do
+      self.anim[y][x] = love.graphics.newQuad(
+        (x-1)*tileSize, (y-1)*tileSize, tileSize, tileSize,
+        self.imageWidth, self.imageHeight)
+      
+      i=i+1
+    end
+  end
+  
+  self.spriteFrame = 1
+  self.spriteFrameTime = 0  
 end
 
 function Spider:receiveDamage(damage)
@@ -27,11 +47,39 @@ function Spider:draw()
   local x, y = self.shape:center()
   
   love.graphics.setColor(255, 255, 255, 255)
-  self.shape:draw("line")
-  love.graphics.draw(self.image, x - self.imageWidth*0.5, y - self.imageHeight*0.5) 
+  --self.shape:draw("line")
   
-  love.graphics.rectangle("line", x - self.imageWidth*0.5, y - self.imageHeight*0.5 - 10, self.imageWidth, 8)
-  love.graphics.rectangle("fill", x - self.imageWidth*0.5+1, y - self.imageHeight*0.5 - 9, (self.imageWidth-2)*self.health/self.maxHealth, 6)
+  local spriteDirection=1 -- down
+  if self.direction then
+    local dx, dy = self.direction.x, self.direction.y
+    if math.abs(dx) > math.abs(dy) then
+      if dx < 0 then
+        spriteDirection = 2 -- left
+      else
+        spriteDirection = 3 -- right
+      end
+    else
+      if dy < 0 then
+        spriteDirection = 4 -- up
+      else
+        spriteDirection = 1 -- down
+      end
+      
+    end
+    
+  end
+  
+  
+  love.graphics.draw(self.image, self.anim[spriteDirection][self.spriteFrame], x - self.tileSize, y - self.tileSize, 0, 2, 2)
+  --love.graphics.draw(self.image, x - self.imageWidth*0.5, y - self.imageHeight*0.5) 
+  
+  -- Draw health
+  if self.health ~= self.maxHealth then
+    local barWidth=self.tileSize*1.6
+    local heightOffset=self.tileSize+10
+    love.graphics.rectangle("line", x - barWidth*0.5, y - heightOffset, barWidth, 8)
+    love.graphics.rectangle("fill", x - barWidth*0.5+1, y - heightOffset + 1, (barWidth-2)*self.health/self.maxHealth, 6)
+  end
 end
 
 function Spider:update(dt)
@@ -48,6 +96,14 @@ function Spider:update(dt)
       self.timer.addPeriodic(1.2, function() self.world.crystal:receiveDamage(1.0) end)
     end
   else
+    self.spriteFrameTime = self.spriteFrameTime + dt
+    if self.spriteFrameTime > 0.1 then
+      self.spriteFrameTime = 0.0
+      self.spriteFrame = self.spriteFrame + 1
+      if self.spriteFrame > 6 then
+        self.spriteFrame = 1
+      end
+    end    
     
     self.direction = Vector.normalize({x=-x, y=-y})
     local delta = Vector.scale(self.direction, dt * 50)
