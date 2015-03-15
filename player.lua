@@ -61,6 +61,18 @@ function Player:updateInput(dt)
     sx = 1
   end
   
+  -- Try mouse controls
+  if sx==0 and sy==0 and love.mouse.isDown("l") then
+    local mx, my = love.mouse.getX(), love.mouse.getY()
+    mx, my = self.world.camera:screenToWorld(mx, my)
+    local x, y = self:getPosition()
+    local delta = {x=mx-x, y=my-y} 
+    local l = Vector.length(delta)
+    if l > 1 then
+      sx, sy = delta.x/l, delta.y/l
+    end
+  end
+
   if sx~=0 or sy~=0 then
     self.shooting = true
     self.direction = Vector.normalize {x=sx, y=sy} 
@@ -68,8 +80,11 @@ function Player:updateInput(dt)
     self.shooting = false
   end
   
-  local speed=300*dt
-  self.shape:move(dx*speed, dy*speed)
+  if dx~=0 or dy~=0 then
+    local speed=300*dt
+    local move = Vector.normalize {x=dx, y=dy} 
+    self.shape:move(move.x*speed, move.y*speed)
+  end
 end
 
 function Player:getPosition()
