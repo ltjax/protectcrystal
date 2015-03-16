@@ -18,6 +18,7 @@ function Spider:initialize(world, x, y)
   self.timer = Timer.new()
   self.attacking = false
   self.world = world
+  self.score = 10
   
   local tileSize=32
   self.tileSize=tileSize
@@ -140,7 +141,8 @@ function Spider:update(dt)
 
   if self.health > 0.0 then
     return true
-  else
+  else  
+    self.world:incrementKillScore (self.score)
     self.world.collider:remove(self.shape)
     return false
   end

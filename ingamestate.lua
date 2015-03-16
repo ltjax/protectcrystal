@@ -1,4 +1,6 @@
 
+Score = 0
+
 local Vector = require "vector"
 local HadronCollider = require "hadroncollider"
 assert(HadronCollider, "Unable to load hadron collider")
@@ -42,6 +44,11 @@ local function segmentTrace(world, x, y, dx, dy)
   return result
 end
 
+local function incrementKillScore (world, score)
+  if world and world.killScore and score then
+    world.killScore = world.killScore + score
+  end    
+end
 
 function inGameState:contactCallback(dt, shape_one, shape_two, dx, dy)
 end
@@ -54,12 +61,14 @@ function inGameState:init()
   self.world.map = TiledLoader:new(require "map")
   self.world.collider = HadronCollider(100, function(...) self:contactCallback(...) end)
   self.world.segmentTrace = segmentTrace
+  self.world.killScore = 0
+  self.world.incrementKillScore = incrementKillScore
 
   -- Add the eponymous crystal
   self.world.crystal = Crystal:new(self.world)
   table.insert(self.objectList, self.world.crystal)
-  self.world.crystal.onDestroy = function()
-    Gamestate.switch(require "gameoverstate")
+  self.world.crystal.onDestroy = function(score)
+    Gamestate.switch(require "gameoverstate", score)
   end
   
   -- Add the camera

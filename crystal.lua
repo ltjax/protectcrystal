@@ -11,12 +11,13 @@ function Crystal:initialize(world)
   self.maxHealth = 30
   self.health = self.maxHealth
   self.position = {x=0, y=0}
+  self.world = world
 end
 
 function Crystal:receiveDamage(damage)
   self.health = self.health - damage
   if self.health <= 0 and self.onDestroy then
-    self.onDestroy()
+    self.onDestroy(self.world.killScore)
   end  
 end
 
