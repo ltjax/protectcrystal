@@ -10,6 +10,7 @@ function Crystal:initialize(world)
   self.type = "Crystal"  
   self.maxHealth = 30
   self.health = self.maxHealth
+  self.position = {x=0, y=0}
 end
 
 function Crystal:receiveDamage(damage)

@@ -36,8 +36,26 @@ function Spider:initialize(world, x, y)
   end
   
   self.spriteFrame = 1
-  self.spriteFrameTime = 0  
+  self.spriteFrameTime = 0
+  
+  self:nextTarget()
 end
+
+function Spider:nextTarget()
+  local x, y = self.shape:center()
+  local finalTarget = self.world.crystal.position
+  local toGo = Vector.subtract(finalTarget, {x=x, y=y})
+  local length = Vector.length(toGo)
+  local maxLength = 120
+  if length > maxLength then
+    toGo = Vector.scale(toGo, maxLength/length)
+  end
+  
+  toGo.x = toGo.x + love.math.random(-20, 20) + x
+  toGo.y = toGo.y + love.math.random(-20, 20) + y
+  self.targetLocation = toGo
+end
+
 
 function Spider:receiveDamage(damage)
   self.health = self.health - damage
@@ -95,7 +113,7 @@ function Spider:update(dt)
       self.attacking = true
       self.timer.addPeriodic(1.2, function() self.world.crystal:receiveDamage(1.0) end)
     end
-  else
+  elseif self.targetLocation then
     self.spriteFrameTime = self.spriteFrameTime + dt
     if self.spriteFrameTime > 0.1 then
       self.spriteFrameTime = 0.0
@@ -105,9 +123,19 @@ function Spider:update(dt)
       end
     end    
     
-    self.direction = Vector.normalize({x=-x, y=-y})
-    local delta = Vector.scale(self.direction, dt * 50)
-    self.shape:move(delta.x, delta.y)
+    local delta = {x=self.targetLocation.x-x, y=self.targetLocation.y-y}
+    local length = Vector.length(delta)
+    
+    if length > 1 then
+      self.direction = Vector.scale(delta, 1/length)
+      delta = Vector.scale(self.direction, dt * 150)
+      self.shape:move(delta.x, delta.y)
+    else
+      self.targetLocation = nil
+      self.timer.add(love.math.random()*1.2+0.4, function() 
+        self:nextTarget()
+      end)
+    end
   end
 
   if self.health > 0.0 then
