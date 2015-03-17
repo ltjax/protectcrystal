@@ -1,6 +1,4 @@
 
-Score = 0
-
 local Vector = require "vector"
 local HadronCollider = require "hadroncollider"
 assert(HadronCollider, "Unable to load hadron collider")
@@ -18,6 +16,7 @@ local TiledLoader = require "tiledloader"
 local Camera = require "camera"
 local MouseKeyboardInput = require "mousekeyboardinput"
 local ControllerInput = require "controllerinput"
+local Score = require "score"
 
 local function segmentTrace(world, x, y, dx, dy)
   local ax, ay=x ,y
@@ -63,7 +62,9 @@ function inGameState:init()
   self.world.segmentTrace = segmentTrace
   self.world.killScore = 0
   self.world.incrementKillScore = incrementKillScore
-
+  
+  self.score = Score:new(self.world)
+    
   -- Add the eponymous crystal
   self.world.crystal = Crystal:new(self.world)
   table.insert(self.objectList, self.world.crystal)
@@ -84,7 +85,6 @@ function inGameState:init()
   
   table.insert(self.objectList, Player:new(self.world, -100, 50, mouseKeyboardInput))
   table.insert(self.objectList, Player:new(self.world, 100, 50, gamepadInput))
-  
   -- And the monster spawner
   table.insert(self.objectList, Spawner:new({Spider}, self.objectList, self.world))
 end
@@ -104,6 +104,9 @@ function inGameState:draw()
       self.objectList[i]:draw()
     end
   end
+  
+  self.score:draw()
+  
 end
 
 function inGameState:update(dt) 
@@ -125,7 +128,9 @@ function inGameState:update(dt)
       dst = dst + 1
     end
   end
-
+  
+  self.score:update(dt)
+  
   for i=dst,N do
     table.remove(self.objectList)
   end
